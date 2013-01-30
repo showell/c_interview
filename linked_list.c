@@ -57,6 +57,18 @@ LIST reverse(PNODE pnode) {
     return rest;
 }
 
+LIST concat(LIST list1, LIST list2) {
+    if (!list1.head) return list2;
+    if (!list2.head) return list1;
+
+    list1.tail->next = list2.head;
+
+    LIST result;
+    result.head = list1.head;
+    result.tail = list2.tail;
+    return result;
+}
+
 int main(int argc, char **argv) {
     LIST list;
     list.head = NULL;
@@ -65,6 +77,16 @@ int main(int argc, char **argv) {
     list = append(list, "b");
     list = append(list, "c");
     list = append(list, "d");
+    list = append(list, "x");
+
+    LIST list2;
+    list2.head = NULL;
+    list2.tail = NULL;
+    list2 = append(list2, "e");
+    list2 = append(list2, "f");
+
+    list = concat(list, list2);
+
     list = reverse(list.head);
     debug(list.head);
     return 0;
