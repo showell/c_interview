@@ -13,15 +13,11 @@ typedef struct {
     PNODE tail;
 } LIST;
 
-LIST append(LIST orig, char *s) {
-    PNODE new_pnode;
-    new_pnode = malloc(sizeof(*new_pnode));
-    new_pnode->next = NULL;
-    new_pnode->value = s;
+LIST append_node(LIST orig, PNODE new_pnode) {
     LIST list;
     if (orig.head) {
         list.head = orig.head;
-        list.tail->next = new_pnode;
+        orig.tail->next = new_pnode;
     }
     else {
         list.head = new_pnode;
@@ -30,11 +26,21 @@ LIST append(LIST orig, char *s) {
     return list;
 }
 
+LIST append(LIST orig, char *s) {
+    PNODE p;
+    p = malloc(sizeof(*p));
+    p->next = NULL;
+    p->value = s;
+    return append_node(orig, p);
+}
+
 void debug(PNODE pnode) {
+    printf("--\n");
     while (pnode) {
         printf("%s\n", pnode->value);
         pnode = pnode->next;
     }
+    printf("--\n");
 }
 
 LIST reverse(PNODE pnode) {
@@ -69,6 +75,37 @@ LIST concat(LIST list1, LIST list2) {
     return result;
 }
 
+LIST quicksort(LIST list) {
+    if (!list.head) return list;
+    PNODE head = list.head;
+    char *pivot = head->value;
+    LIST smalls;
+    smalls.head = NULL;
+    smalls.tail = NULL;
+    LIST bigs;
+    bigs.head = NULL;
+    bigs.tail = NULL;
+    PNODE p;
+    PNODE p_next;
+
+    for (p = head->next; p; p = p_next) {
+        p_next = p->next;
+        p->next = NULL;
+
+        if (strcmp(p->value, pivot) > 0) {
+            bigs = append_node(bigs, p);
+        }
+        else {
+            smalls = append_node(smalls, p);
+        }
+    }
+    head->next = NULL;
+    bigs = quicksort(bigs);
+    smalls = quicksort(smalls);
+    return concat(append_node(smalls, head), bigs);
+}
+
+
 int main(int argc, char **argv) {
     LIST list;
     list.head = NULL;
@@ -82,12 +119,15 @@ int main(int argc, char **argv) {
     LIST list2;
     list2.head = NULL;
     list2.tail = NULL;
+    list2 = append(list2, "y");
     list2 = append(list2, "e");
     list2 = append(list2, "f");
 
     list = concat(list, list2);
 
     list = reverse(list.head);
+    debug(list.head);
+    list = quicksort(list);
     debug(list.head);
     return 0;
 }
