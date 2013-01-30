@@ -6,66 +6,66 @@ struct node {
     struct node *next;
     char *value;
 };
-typedef struct node *LIST;
+typedef struct node *PNODE;
 
-struct result {
-    LIST head;
-    LIST tail;
-};
+typedef struct {
+    PNODE head;
+    PNODE tail;
+} LIST;
 
-struct result append(struct result orig, char *s) {
-    LIST new_list;
-    new_list = malloc(sizeof(*new_list));
-    new_list->next = NULL;
-    new_list->value = s;
-    struct result result;
+LIST append(LIST orig, char *s) {
+    PNODE new_pnode;
+    new_pnode = malloc(sizeof(*new_pnode));
+    new_pnode->next = NULL;
+    new_pnode->value = s;
+    LIST list;
     if (orig.head) {
-        result.head = orig.head;
-        result.tail->next = new_list;
+        list.head = orig.head;
+        list.tail->next = new_pnode;
     }
     else {
-        result.head = new_list;
+        list.head = new_pnode;
     }
-    result.tail = new_list;
-    return result;
+    list.tail = new_pnode;
+    return list;
 }
 
-void debug(LIST list) {
-    while (list) {
-        printf("%s\n", list->value);
-        list = list->next;
+void debug(PNODE pnode) {
+    while (pnode) {
+        printf("%s\n", pnode->value);
+        pnode = pnode->next;
     }
 }
 
-struct result reverse(LIST list) {
-    struct result result; 
-    if (list == NULL) {
-        result.head = NULL;
-        result.tail = NULL;
-        return result;
+LIST reverse(PNODE pnode) {
+    LIST list; 
+    if (pnode == NULL) {
+        list.head = NULL;
+        list.tail = NULL;
+        return list;
     }
-    if (list->next == NULL) {
-        result.head = list;
-        result.tail = list;
-        return result;
+    if (pnode->next == NULL) {
+        list.head = pnode;
+        list.tail = pnode;
+        return list;
     }
-    struct result rest = reverse(list->next);
-    result.head = rest.head;
-    list->next->next = list;
-    list->next = NULL;
-    result.tail = list;
+    LIST rest = reverse(pnode->next);
+    list.head = rest.head;
+    pnode->next->next = pnode;
+    pnode->next = NULL;
+    list.tail = pnode;
     return rest;
 }
 
 int main(int argc, char **argv) {
-    struct result result;
-    result.head = NULL;
-    result.tail = NULL;
-    result = append(result, "a");
-    result = append(result, "b");
-    result = append(result, "c");
-    result = append(result, "d");
-    result = reverse(result.head);
-    debug(result.head);
+    LIST list;
+    list.head = NULL;
+    list.tail = NULL;
+    list = append(list, "a");
+    list = append(list, "b");
+    list = append(list, "c");
+    list = append(list, "d");
+    list = reverse(list.head);
+    debug(list.head);
     return 0;
 }
