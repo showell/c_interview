@@ -74,7 +74,7 @@ def make_score_dict(words, target_letters):
             else:
                 w += '?'
         if score > 0:
-            result[w] = result.get(w, 0) + score * score
+            result[w] = result.get(w, 0) + score * score * score
     return result
 
 LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -83,9 +83,7 @@ def decrypt(data):
     """Given a string, returns the decrypted version of the text."""
     valid_words = load_words()
     dct = {}
-    dct['F'] = 'A'
     dct['G'] = 'B'
-    dct['H'] = 'C'
     dct['I'] = 'D'
     dct['K'] = 'F'
     dct['L'] = 'G'
