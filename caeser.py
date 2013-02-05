@@ -37,6 +37,13 @@ ftable = [8.12, # A
 2.11, # X
 0.07] # Z
 
+POPULARITY = {}
+for i in range(26):
+    POPULARITY[chr(ord('A')+i)] = ftable[i]
+LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+by_pop = lambda c: POPULARITY[c]
+POPULAR_LETTERS = sorted(list(LETTERS), key=by_pop, reverse=True)
+
 
 def has_letter(s):
     if "'" in s: return False
@@ -77,22 +84,26 @@ def make_score_dict(words, target_letters):
             result[w] = result.get(w, 0) + score * score * score
     return result
 
-LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-
 def decrypt(data):
     """Given a string, returns the decrypted version of the text."""
     valid_words = load_words()
+
+    # It so happens that the hamlet.txt has a simple rotating
+    # encryption scheme, but we try to guess from all 26! possible
+    # schemes, giving ourselves a bit of a hint.  Our heuristic
+    # for scoring words is good enough to work with a little
+    # bootstrapping, but getting bootstrapped is the hard part of
+    # the problem here. :(
+    # Also, we don't implement backtracking here, and we need a
+    # reliable way to know that we've gone down a rabbit hole.
+
     dct = {}
-    dct['G'] = 'B'
-    dct['I'] = 'D'
-    dct['K'] = 'F'
-    dct['L'] = 'G'
-    dct['M'] = 'H'
-    dct['Q'] = 'L'
+    dct['Y'] = 'T'
+    dct['F'] = 'A'
     dct['C'] = 'X'
 
     target_letters = dct.values()
-    for target_letter in LETTERS:
+    for target_letter in POPULAR_LETTERS:
         if target_letter in target_letters:
             continue
         target_letters.append(target_letter)
