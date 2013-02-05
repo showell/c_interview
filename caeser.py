@@ -38,40 +38,97 @@ ftable = [8.12, # A
 0.07] # Z
 
 
-def alpha_to_int(letter):
-    """Converts a letter to an integer in the (inclusive) range of 0-25"""
-    return (ord(letter) & 31) - 1
+def has_letter(s):
+    if "'" in s: return False
+    for c in s:
+        if c != '?': return True
+    return False
 
-def int_to_alpha(numb):
-    """Converts an integer in the range of 0-25 into an uppercase letter."""
-    return chr(numb + 65)
+def translate(s, dct):
+    text = ''
+    for c in s:
+        if 'A' <= c <= 'Z':
+            text += dct.get(c, '?')
+        elif c == "'":
+            text += "'"
+        else:
+            text += ' '
+    return text
 
-def decrypt_letter(c, offset):
-    if 'A' <= c <= 'Z':
-        return int_to_alpha((alpha_to_int(c) + offset) % 26)
-    else:
-        return c
+def load_words():
+    fn = '/usr/share/dict/words'
+    result = []
+    for line in open(fn):
+        result.append(line.strip().upper())
+    return result
+
+def make_score_dict(words, target_letters):
+    result = {}
+    for word in words:
+        w = ''
+        score = 0
+        for c in word:
+            if c in target_letters:
+                score += 1.0
+                w += c
+            else:
+                w += '?'
+        if score > 0:
+            result[w] = result.get(w, 0) + score * score
+    return result
+
+LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 def decrypt(data):
     """Given a string, returns the decrypted version of the text."""
-    # Write your code here. You can create other functions and modify existing
-    # code as needed.
-    translations = []
-    for offset in range(26):
-        def f(c):
-            return decrypt_letter(c, offset)
+    valid_words = load_words()
+    dct = {}
+    dct['F'] = 'A'
+    dct['G'] = 'B'
+    dct['H'] = 'C'
+    dct['I'] = 'D'
+    dct['K'] = 'F'
+    dct['L'] = 'G'
+    dct['M'] = 'H'
+    dct['Q'] = 'L'
+    dct['C'] = 'X'
 
-        text = ''.join(map(f, data))
-        score = 0
-        for c in text:
-            if 'A' <= c <= 'Z':
-                score += ftable[ord(c) - ord('A')]
-        translations.append((score, text))
-    best_translation = max(translations)[1]
-    return best_translation
+    target_letters = dct.values()
+    for target_letter in LETTERS:
+        if target_letter in target_letters:
+            continue
+        target_letters.append(target_letter)
+        score_dict = make_score_dict(valid_words, target_letters)
+        print target_letters
+        guesses = []
+        for code_letter in LETTERS:
+            if code_letter in dct:
+                continue
+            dct[code_letter] = target_letter
+            text = translate(data, dct)
+            data_words = filter(has_letter, text.split())
+            score = 0
+            for word in data_words:
+                word_score = score_dict.get(word, -1000)
+                score += word_score
+            guess = (score, code_letter)
+            guesses.append(guess)
+            del dct[code_letter]
+            print code_letter, score
+
+        print '\n' * 5
+        print '--------'
+        guesses.sort(reverse=True)
+        code_letter = guesses[0][1]
+        dct[code_letter] = target_letter
+        print dct
+        print translate(data, dct)
+        print code_letter, target_letter
+        if (ord(code_letter) - ord('A') + 21) % 26 != ord(target_letter) - ord('A'):
+            raise Exception('fail')
 
 if len(sys.argv) != 2:
     sys.exit('please specify the file to decrypt as the first parameter')
 
 with open(sys.argv[1],"r") as textfile:
-    print decrypt(textfile.read())
+    decrypt(textfile.read())
