@@ -1,23 +1,37 @@
-def incr_bin(num, i = 0):
-    if num[i] is None:
+def incr_bin(num):
+    if num[0] is None:
+        # 0 -> 1
         num[i] = (1, 1)
         return
-    num_bits, bit = num[i]
-    if bit == 1:
-        num[i] = (num_bits, 0)
-        if num[i+num_bits] is None:
-            print 'ROLL'
-            num[i+num_bits] = (1,1)
+    num_bits, bit = num[0]
+    if bit == 0:
+        num_zeros = num_bits
+        if num_zeros == 1:
+            # 011 -> 111
+            num_ones, _ = num[1]
+            num[0] = (num_ones+1, 1)
         else:
-            print 'RECURSE'
-            incr_bin(num, i + num_bits)
+            # 0001 -> 1001
+            num[0] = (1,1)
+            num[1] = (num_zeros-1, 0)
     else:
-        if num_bits == 1:
-            num_ones, _ = num[i+1]
-            num[i] = (num_ones+1, 1)
+        num_ones = num_bits
+        if num[num_ones] is None:
+            # 1111 -> 00001
+            num[0] = (num_ones, 0)
+            num[num_ones] = (1,1)
         else:
-            num[i] = (1,1)
-            num[i+1] = (num_bits-1, 0)
+            num_zeros, _ = num[num_ones]
+            if num_zeros == 1:
+                # 11101111 -> 0001111
+                num_higher_ones, _ = num[num_ones+1]
+                num[0] = (num_ones, 0)
+                num[num_ones] = (num_higher_ones+1, 1)
+            else:
+                # 1001xxx -> 0101xxx
+                num[0] = (num_ones, 0)
+                num[num_ones] = (1, 1)
+                num[num_ones+1] = (num_zeros-1, 0)
 
 numbers = {
     0: [None],
