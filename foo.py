@@ -1,21 +1,8 @@
-def f(i):
-    big = 1024
-    small = 16
-    if i < big:
-        return i
-    else:
-        i -= big
-        return big + f(i / small)
+def sorted2(lst, key1, key2):
+    def f(v): return (key1(v), key2(v))
+    return sorted(lst, key=f)
 
-def test():
-    last_v = 0
-    big_n = 10 * 1000 * 1000
-    for i in range(big_n, big_n + 3000000):
-        v = f(i)
-        if v < last_v:
-            raise 'foo'
-        if v > last_v:
-            print i, v
-        last_v = v
-
-test()
+list = [207, 101, 103, 104, 208]
+key1 = lambda i: i / 100
+key2 = lambda i: 10 - (i % 100)
+print sorted2(list, key1, key2)
