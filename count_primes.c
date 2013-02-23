@@ -13,32 +13,37 @@ void sieve_out_multiples(
         int n_start,
         int n_end)
 {
+    int offset;
+
     while (primes[i].max_multiple < n_end) {
-        sieve[primes[i].max_multiple - n_start] = 1;
-        primes[i].max_multiple += primes[i].n;
+        offset = (primes[i].max_multiple - n_start) / 2;
+        sieve[offset] = 1;
+        primes[i].max_multiple += 2 * primes[i].n;
     }
 }
 
 int count_odd_primes(n) {
-    int chunk_size = 1000;
+    if (n % 2 == 0) --n;
+
+    int chunk_size = 1000; // number of odds
     int n_start = 3;
-    int n_end = n_start + chunk_size - 1;
-    if (n_end > n) n_end = n;
+    int n_end = n_start + 2 * chunk_size;
+    if (n_end > n+2) n_end = n+2;
     int cnt = 0;
 
-    chunk_size = n_end - n_start + 1;
-    int alloc_size = chunk_size / 2; // enough to get started
+    chunk_size = (n_end - n_start) / 2;
+    int alloc_size = chunk_size; // enough to get started
     struct prime *primes = malloc(alloc_size * sizeof(*primes));
     int *sieve = malloc(chunk_size * sizeof(int));
     int i;
 
     while (n_start <= n) {
-        n_end = n_start + chunk_size - 1;
-        if (n_end > n) n_end = n;
-        chunk_size = n_end - n_start + 1;
+        n_end = n_start + 2 * chunk_size;
+        if (n_end > n+2) n_end = n+2;
+        chunk_size = (n_end - n_start) / 2;
 
-        for (i = n_start; i <= n_end; ++i) {
-            sieve[i - n_start] = 0;
+        for (i = 0; i < chunk_size; ++i) {
+            sieve[i] = 0;
         }
 
         // mark all composities from primes so far
@@ -46,10 +51,11 @@ int count_odd_primes(n) {
             sieve_out_multiples(sieve, primes, i, n_start, n_end);
         }
 
-        for (i = n_start; i <= n_end; i += 2) {
-            if (sieve[i - n_start] == 0) {
+        for (i = n_start; i < n_end; i += 2) {
+            int offset = (i - n_start) / 2;
+            if (sieve[offset] == 0) {
                 // we found a prime!
-                printf("prime %d\n", i);
+                // printf("prime %d\n", i);
                 if (cnt >= alloc_size) {
                     alloc_size += chunk_size / 2 + 1;
                     primes = realloc(primes, alloc_size * sizeof(*primes));
@@ -60,7 +66,7 @@ int count_odd_primes(n) {
                 ++cnt;
             }
         }
-        n_start = n_end + 1;
+        n_start = n_end;
         if (n_start % 2 == 0) ++n_start;
     }
     return cnt;
