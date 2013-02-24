@@ -9,35 +9,22 @@ def test():
 
 def traverse_range(tree, min, max):
     stack = []
-    while tree:
-        # Go down the left side of the tree to
-        # find the smallest element.
-        while tree:
-            left, val, right  = tree
-            # If we have children, push ourselves on the
-            # stack unless we and our right children fail
-            # the range check.
+    while tree or stack:
+        if tree:
+            left, val, right = tree
             if val <= max:
                 stack.append(tree)
-            if val < min:
-                break
             tree = left
-        # Now yield all the parents until we find a parent
-        # with children on the right.
-        tree = None
-        while stack:
+            if val < min:
+                tree = None
+        else:
             tree = stack.pop()
             left, val, right = tree
-            # Yield the element and/or abort based on the range.
             if val > max:
                 return
             if min <= val:
                 yield val
-            if right:
-                tree = right
-                break
-            else:
-                tree = None
+            tree = right
 
 # In Python a simple way to represent a binary
 # tree is as a tuple: (left_tree, val, right_tree)
