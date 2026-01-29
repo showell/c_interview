@@ -8,7 +8,7 @@ def enumerate_power_of_4_triplets(until_callback):
     # (i.e. K + 1 == len(powers))
     powers = [1, 4, 16]
 
-    while k < 100:
+    while k < 200:
         assert k + 1 == len(powers)
 
         triplet_sum = powers[i] + powers[j] + powers[k]
@@ -33,7 +33,19 @@ def enumerate_power_of_4_triplets(until_callback):
             i = 0
             j = 1
 
-answer = enumerate_power_of_4_triplets(
-    until_callback=lambda n: n % 16773121 == 0
-)
-print(answer)
+def seek_bad_numbers():
+    bad_numbers = set()
+
+    for i in range(2, 50):
+        # Skip redundant answers. If 5 doesn't work, neither will
+        # 10, 15, 20, etc.
+        if any(i % bad_number == 0 for bad_number in bad_numbers):
+            continue
+        answer = enumerate_power_of_4_triplets(
+            until_callback=lambda n: n % i == 0
+        )
+        if answer is None:
+            bad_numbers.add(i)
+            print(f"{i} does not seem to divide any triplets")
+
+seek_bad_numbers()
