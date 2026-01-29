@@ -33,5 +33,7 @@ def enumerate_power_of_4_triplets(until_callback):
             i = 0
             j = 1
 
-answer = enumerate_power_of_4_triplets(until_callback=lambda n: n % 16773121 == 0)
+answer = enumerate_power_of_4_triplets(
+    until_callback=lambda n: n % 16773121 == 0
+)
 print(answer)
